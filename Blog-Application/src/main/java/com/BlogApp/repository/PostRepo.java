@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface PostRepo extends JpaRepository<Posts,Integer> {
 
     //find Post BY user;
-    Optional<List<Posts>> findByUser(User user);
+    List<Posts> findByUser(User user);
     //find Post BY category;
     Optional<List<Posts>> findByCategory(Category category);
 

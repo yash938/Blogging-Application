@@ -3,6 +3,7 @@ package com.BlogApp.service;
 import com.BlogApp.dto.PostDto;
 import com.BlogApp.entity.Category;
 import com.BlogApp.entity.Posts;
+import com.BlogApp.entity.User;
 import com.BlogApp.utils.PaegableResponse;
 
 
@@ -21,7 +22,11 @@ public interface PostService {
     PaegableResponse<PostDto> getAllPost(int pageNumber, int pageSize, String sortBy, String sortDir);
 
     //get all post by category
-    List<Posts> getPostByCategory(Category categoryId);
+    List<PostDto> getPostByCategory(int categoryId);
     //get all post by user
-    List<Posts> getPostByUser(int userId);
+    List<PostDto> getPostByUser(int userId);
+
+
+    //search post by title
+
 }

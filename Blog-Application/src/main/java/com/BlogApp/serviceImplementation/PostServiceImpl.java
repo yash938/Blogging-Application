@@ -16,9 +16,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -69,6 +71,8 @@ public class PostServiceImpl implements PostService {
         return modelMapper.map(updatePost, PostDto.class);
     }
 
+
+
     @Override
     public PostDto assignPostToCategory(int postId, int categoryId) {
         Posts post = postRepo.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
@@ -99,14 +103,33 @@ public class PostServiceImpl implements PostService {
         return all;
     }
 
-    @Override
-    public List<Posts> getPostByCategory(Category category) {
+  @Override
+  public List<PostDto> getPostByCategory(int categoryId) {
+      // Fetch the category by ID
+      Category category = categoryRepo.findById(categoryId)
+              .orElseThrow(() -> new RuntimeException("Category not found"));
 
-        return null;
-    }
+      // Fetch posts by category
+      List<Posts> posts = postRepo.findByCategory(category)
+              .orElseThrow(() -> new RuntimeException("Post not found"));
 
-    @Override
-    public List<Posts> getPostByUser(int userId) {
-        return List.of();
-    }
+      // Map each post to PostDto
+      return posts.stream()
+              .map(post -> modelMapper.map(post, PostDto.class))
+              .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<PostDto> getPostByUser(int userId) {
+      // Fetch the user by ID
+      User user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+      // Fetch posts by user
+      List<Posts> posts = postRepo.findByUser(user);
+
+      // Map each post to PostDto
+      return posts.stream()
+              .map(post -> modelMapper.map(post, PostDto.class))
+              .collect(Collectors.toList());
+  }
 }
