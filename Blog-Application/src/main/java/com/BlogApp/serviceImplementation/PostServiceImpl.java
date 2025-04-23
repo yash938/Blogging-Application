@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Service
 public class PostServiceImpl implements PostService {
 
@@ -129,6 +130,17 @@ public class PostServiceImpl implements PostService {
 
       // Map each post to PostDto
       return posts.stream()
+              .map(post -> modelMapper.map(post, PostDto.class))
+              .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<PostDto> searchPost(String keyword) {
+      // Fetch posts containing the keyword in the title
+      List<Posts> allPosts = postRepo.findByPostTitleContaining(keyword);
+
+      // Map each post to PostDto
+      return allPosts.stream()
               .map(post -> modelMapper.map(post, PostDto.class))
               .collect(Collectors.toList());
   }
