@@ -2,6 +2,7 @@ package com.BlogApp.serviceImplementation;
 
 import com.BlogApp.service.FileService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -11,6 +12,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Slf4j
+@Service
 public class FileServiceImpl implements FileService {
     @Override
     public String UploadFile(MultipartFile multipartFile, String path) {

@@ -33,9 +33,11 @@ public class PostController {
 
     @Value("${user.post.image.path}")
     private String imageUploadPath;
+
     @Autowired
     private PostService postService;
 
+    @Autowired
     private FileService imageFile;
 
     @PostMapping
