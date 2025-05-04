@@ -1,16 +1,15 @@
 package com.BlogApp.dto;
 
-import com.BlogApp.entity.Category;
-import com.BlogApp.entity.User;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PostDto {
 
     private int postId;
@@ -18,6 +17,9 @@ public class PostDto {
     private String content;
     private String imageName;
     private LocalDate postDate;
+
     private CategoryDto category;
     private UserDto user;
+
+    private Set<CommentDto> comments = new HashSet<>();
 }

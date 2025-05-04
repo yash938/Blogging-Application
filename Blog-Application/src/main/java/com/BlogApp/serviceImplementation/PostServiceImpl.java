@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -48,6 +49,8 @@ public class PostServiceImpl implements PostService {
         Posts createdPost = postRepo.save(post);
         return modelMapper.map(createdPost, PostDto.class);
     }
+
+
 
     @Override
     public PostDto createWithCategory(PostDto postDto, int categoryId,int userId) {
@@ -144,4 +147,6 @@ public class PostServiceImpl implements PostService {
               .map(post -> modelMapper.map(post, PostDto.class))
               .collect(Collectors.toList());
   }
+
+
 }

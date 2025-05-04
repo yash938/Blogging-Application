@@ -1,22 +1,20 @@
 package com.BlogApp.controller;
 
-import com.BlogApp.dto.CategoryDto;
 import com.BlogApp.dto.ImageResponse;
 import com.BlogApp.dto.PostDto;
-import com.BlogApp.dto.UserDto;
-import com.BlogApp.entity.Category;
-import com.BlogApp.entity.Posts;
-import com.BlogApp.service.FileService;
+
+import com.BlogApp.service.ImageService;
 import com.BlogApp.service.PostService;
-import com.BlogApp.service.UserService;
 import com.BlogApp.utils.PaegableResponse;
+
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,19 +24,21 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.List;
 
-@Slf4j
+
 @RestController
+@Slf4j
 @RequestMapping("/posts")
 public class PostController {
 
-    @Value("${user.post.image.path}")
-    private String imageUploadPath;
 
     @Autowired
     private PostService postService;
 
+//    @Autowired
+//    private FileService imageFile;
+
     @Autowired
-    private FileService imageFile;
+    private ImageService imageService;
 
     @PostMapping
     public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto){
@@ -106,27 +106,70 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
+    @PostMapping("/image/upload/{postId}")
+    public ResponseEntity<ImageResponse> uploadImage(@RequestParam("image") MultipartFile image,@PathVariable int postId){
+        String imageURL = imageService.upload(image);
+
+        PostDto post = postService.getPostById(postId);
+
+        post.setImageName(imageURL);
+
+        PostDto postDto = postService.updatePost(postId, post);
+
+        ImageResponse uploadImage = ImageResponse.builder().imageName(imageURL).message("image Upload Successfully").success(true).httpStatus(HttpStatus.OK).localDate(LocalDate.now()).build();
+
+        return ResponseEntity.ok(uploadImage);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     //Image Upload
-    @PostMapping("/image/{id}")
-    public ResponseEntity<ImageResponse> uploadFile(@PathVariable int id, @RequestParam("image")MultipartFile image){
-        String imageName = imageFile.UploadFile(image, imageUploadPath);
-
-        PostDto postById = postService.getPostById(id);
-        postById.setImageName(imageName);
-//        UserDto userDto = userService.updateUser(singleUser, id);
-        PostDto postDto = postService.updatePost(id, postById);
-
-        ImageResponse imageResponse = new ImageResponse(imageName,"Image upload successfully",true,HttpStatus.OK, LocalDate.now());
-        return new ResponseEntity<>(imageResponse,HttpStatus.CREATED);
-    }
-
-    @GetMapping("/image/{id}")
-    public void ServeImage(@PathVariable int id, HttpServletResponse response) throws IOException {
-//        UserDto singleUser = userService.getSingleUser(id);
-        PostDto postById = postService.getPostById(id);
-        log.info("user image name {}",postById.getImageName());
-        InputStream resource = imageFile.getResource(imageUploadPath, postById.getImageName());
-        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-        StreamUtils.copy(resource,response. getOutputStream());
-    }
+//    @PostMapping("/image/{id}")
+//    public ResponseEntity<ImageResponse> uploadFile(@PathVariable int id, @RequestParam("image")MultipartFile image){
+//        String imageName = imageFile.UploadFile(image, imageUploadPath);
+//
+//        PostDto postById = postService.getPostById(id);
+//        postById.setImageName(imageName);
+////        UserDto userDto = userService.updateUser(singleUser, id);
+//        PostDto postDto = postService.updatePost(id, postById);
+//
+//        ImageResponse imageResponse = new ImageResponse(imageName,"Image upload successfully",true,HttpStatus.OK, LocalDate.now());
+//        return new ResponseEntity<>(imageResponse,HttpStatus.CREATED);
+//    }
+//
+//    @GetMapping("/image/{id}")
+//    public void ServeImage(@PathVariable int id, HttpServletResponse response) throws IOException {
+////        UserDto singleUser = userService.getSingleUser(id);
+//        PostDto postById = postService.getPostById(id);
+//        log.info("user image name {}",postById.getImageName());
+//        InputStream resource = imageFile.getResource(imageUploadPath, postById.getImageName());
+//        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+//        StreamUtils.copy(resource,response. getOutputStream());
+//    }
 }
