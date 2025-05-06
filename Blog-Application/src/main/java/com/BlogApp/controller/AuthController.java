@@ -1,9 +1,8 @@
 package com.BlogApp.controller;
 
-import com.BlogApp.dto.JwtRequest;
-import com.BlogApp.dto.JwtResponse;
-import com.BlogApp.dto.UserDto;
+import com.BlogApp.dto.*;
 import com.BlogApp.security.JwtHelper;
+import com.BlogApp.service.RefreshTokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,6 +27,22 @@ public class AuthController {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private RefreshTokenService refreshTokenService;
+
+    @GetMapping("/generateRefreshToken")
+    public ResponseEntity<JwtResponse> generateRefreshToken(@RequestBody RefreshTokenBody refreshToken){
+        RefreshTokenDto byToken = refreshTokenService.findByToken(refreshToken.getRefreshToken());
+        RefreshTokenDto refreshTokenDto = refreshTokenService.verifyToken(byToken);
+
+
+        UserDto user = refreshTokenService.getUser(refreshTokenDto);
+        String s = jwtHelper.generateToken(modelMapper.map(user,User.class));
+
+        JwtResponse build = JwtResponse.builder().token(s).refreshTokenDto(byToken).user(user ).build();
+        return ResponseEntity.ok(build);
+
+    }
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest jwtRequest){
 
@@ -41,7 +53,9 @@ public class AuthController {
         UserDetails userDetails = userDetailsService.loadUserByUsername(jwtRequest.getEmail());
         String token = jwtHelper.generateToken(userDetails);
 
-        JwtResponse build = JwtResponse.builder().token(token).user(modelMapper.map(userDetails, UserDto.class)).build();
+        RefreshTokenDto refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
+
+        JwtResponse build = JwtResponse.builder().token(token).refreshTokenDto(refreshToken).user(modelMapper.map(userDetails, UserDto.class)).build();
 
         return ResponseEntity.ok(build);
 
@@ -51,6 +65,7 @@ public class AuthController {
         try{
             Authentication authentication = new UsernamePasswordAuthenticationToken(email,password);
         }catch (BadCredentialsException ex){
+
             ex.getMessage();
         }
     }
